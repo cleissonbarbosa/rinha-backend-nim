@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Simplified architecture diagram exported as inline SVG for quick viewing -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <style>
+      .box { fill: #fff; stroke: #333; stroke-width: 1.5; rx: 8; ry: 8; }
+      .title { font: 600 14px sans-serif; fill: #111; }
+      .small { font: 12px sans-serif; fill: #333; }
+      .link { stroke: #333; stroke-width: 2; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 6 4; }
+      .uds { stroke: #b85450; }
+      .cluster { fill: #f5f5f5; stroke: #999; stroke-dasharray: 6 4; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- External clients -->
+  <rect x="40" y="60" width="160" height="60" class="box" fill="#dae8fc" stroke="#6c8ebf"/>
+  <text x="120" y="95" text-anchor="middle" class="title">External clients</text>
+
+  <!-- Nginx -->
+  <rect x="240" y="60" width="180" height="60" class="box" fill="#ffe6cc" stroke="#d79b00"/>
+  <text x="330" y="85" text-anchor="middle" class="title">Nginx LB</text>
+  <text x="330" y="105" text-anchor="middle" class="small">listen 9999</text>
+
+  <!-- API replicas -->
+  <rect x="480" y="30" width="280" height="60" class="box" fill="#d5e8d4" stroke="#82b366"/>
+  <text x="620" y="55" text-anchor="middle" class="title">API 0 (UDS /var/run/api0.sock)</text>
+
+  <rect x="480" y="110" width="280" height="60" class="box" fill="#d5e8d4" stroke="#82b366"/>
+  <text x="620" y="135" text-anchor="middle" class="title">API 1 (UDS /var/run/api1.sock)</text>
+
+  <!-- Shared UDS volume /var/run -->
+  <rect x="780" y="50" width="180" height="100" class="box" fill="#f8cecc" stroke="#b85450"/>
+  <text x="870" y="90" text-anchor="middle" class="title">Shared volume</text>
+  <text x="870" y="110" text-anchor="middle" class="small">Docker volume: uds</text>
+
+  <!-- Worker and store -->
+  <rect x="1000" y="50" width="240" height="100" class="box" fill="#fff2cc" stroke="#d6b656"/>
+  <text x="1120" y="85" text-anchor="middle" class="title">Worker (UDS /var/run/worker.sock)</text>
+
+  <rect x="1020" y="180" width="200" height="90" class="box" fill="#e1d5e7" stroke="#9673a6"/>
+  <text x="1120" y="215" text-anchor="middle" class="title">In-memory Store</text>
+  <text x="1120" y="235" text-anchor="middle" class="small">payments[] + AsyncLock</text>
+
+  <!-- Payment processor network cluster -->
+  <rect x="40" y="300" width="1200" height="280" class="cluster"/>
+  <text x="60" y="320" class="small">Docker network: payment-processor</text>
+
+  <rect x="140" y="340" width="420" height="90" class="box" fill="#cce5ff" stroke="#004085"/>
+  <text x="350" y="375" text-anchor="middle" class="title">Payment Processor - default</text>
+  <text x="350" y="395" text-anchor="middle" class="small">http://payment-processor-default:8080</text>
+
+  <rect x="720" y="340" width="420" height="90" class="box" fill="#cce5ff" stroke="#004085"/>
+  <text x="930" y="375" text-anchor="middle" class="title">Payment Processor - fallback</text>
+  <text x="930" y="395" text-anchor="middle" class="small">http://payment-processor-fallback:8080</text>
+
+  <!-- Links -->
+  <line x1="200" y1="90" x2="240" y2="90" class="link" />
+  <line x1="420" y1="90" x2="480" y2="60" class="link dashed" />
+  <line x1="420" y1="90" x2="480" y2="140" class="link dashed" />
+
+  <!-- UDS arrows (illustrative) -->
+  <line x1="760" y1="60" x2="780" y2="60" class="link uds" />
+  <line x1="760" y1="140" x2="780" y2="140" class="link uds" />
+  <line x1="960" y1="100" x2="1000" y2="100" class="link uds" />
+
+  <!-- API -> Worker calls over UDS -->
+  <line x1="760" y1="60" x2="1000" y2="100" class="link" />
+  <line x1="760" y1="140" x2="1000" y2="100" class="link" />
+
+  <!-- Worker -> Store -->
+  <line x1="1120" y1="150" x2="1120" y2="180" class="link" />
+
+  <!-- Worker -> Payment processors -->
+  <line x1="1120" y1="150" x2="350" y2="340" class="link" />
+  <line x1="1120" y1="150" x2="930" y2="340" class="link" />
+
+  <!-- Labels on key flows -->
+  <text x="900" y="30" text-anchor="middle" class="small">UDS: /var/run/*.sock (shared volume)</text>
+  <text x="900" y="280" text-anchor="middle" class="small">HTTP POST /payments (X-Rinha-Token)</text>
+  <text x="620" y="200" text-anchor="middle" class="small">API -> Worker: {type: payment|get_summary}</text>
+</svg>
