@@ -1,9 +1,7 @@
 # Rinha de Backend 2025 — Nim
 
-Implementação da Rinha de Backend 2025 utilizando:
-
-- [Nim](https://nim-lang.org/) linguagem de programação
-- [UDS](https://en.wikipedia.org/wiki/Unix_domain_socket) unix domain sockets para comunicação IPC
+> [!NOTE]
+> Estudo/Experiencia com Nim, inspirado no codigo do [Lothyriel](https://github.com/Lothyriel), escrito em rust, codigo original aqui: [https://github.com/Lothyriel/rinha_2025](https://github.com/Lothyriel/rinha_2025/)
 
 ---
 
